@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joanna Woo — Data Analytics Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f7f5f0;
+    --accent: #c45d3e;
+    --accent-light: #e8a590;
+    --muted: #8a8680;
+    --card-bg: #ffffff;
+    --border: #e2ddd5;
+    --tag-bg: #f0ebe3;
+    --shadow: 0 2px 20px rgba(26, 26, 46, 0.06);
+    --shadow-hover: 0 8px 40px rgba(26, 26, 46, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── NAVIGATION ─── */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 1.25rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(247, 245, 240, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  nav.scrolled {
+    padding: 0.8rem 3rem;
+    box-shadow: var(--shadow);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1.5px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 3rem 4rem;
+    position: relative;
+  }
+
+  .hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 2rem;
+    height: 1.5px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .hero-cta {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(196, 93, 62, 0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  /* ─── DECORATIVE FLOAT ─── */
+  .hero-decoration {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 320px;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  .hero-decoration svg {
+    width: 100%;
+    height: 100%;
+    animation: slowSpin 60s linear infinite;
+  }
+
+  @keyframes slowSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 6rem 3rem; }
+
+  .section-header {
+    max-width: 900px;
+    margin: 0 auto 3.5rem;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  /* ─── ABOUT ─── */
+  #about {
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .about-grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  .about-text {
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.85;
+  }
+
+  .about-text strong { color: var(--ink); font-weight: 600; }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-content: start;
+  }
+
+  .stat-card {
+    padding: 1.5rem;
+    background: var(--paper);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .stat-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.35rem;
+  }
+
+  .stat-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ─── SKILLS ─── */
+  .skills-container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .skill-pill {
+    padding: 0.6rem 1.25rem;
+    background: var(--tag-bg);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink);
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .skill-pill:hover {
+    border-color: var(--accent-light);
+    background: white;
+    transform: translateY(-2px);
+  }
+
+  .skill-pill.highlight {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .skill-pill.highlight:hover {
+    background: var(--accent);
+  }
+
+  /* ─── PROJECTS ─── */
+  .projects-grid {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .project-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent-light);
+  }
+
+  .project-visual {
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card:nth-child(1) .project-visual {
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
+  }
+
+  .project-card:nth-child(2) .project-visual {
+    background: linear-gradient(135deg, #c45d3e 0%, #e8a590 100%);
+  }
+
+  .project-icon {
+    width: 80px;
+    height: 80px;
+    opacity: 0.9;
+  }
+
+  .project-visual-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  .project-body {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .project-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .project-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .project-desc {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.75;
+    margin-bottom: 1.25rem;
+  }
+
+  .project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tech-tag {
+    padding: 0.3rem 0.7rem;
+    background: var(--tag-bg);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.3s, gap 0.3s;
+  }
+
+  .project-link:hover {
+    color: var(--accent);
+    gap: 0.7rem;
+  }
+
+  .project-link svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s;
+  }
+
+  .project-link:hover svg { transform: translateX(3px); }
+
+  /* ─── EXPERIENCE ─── */
+  #experience {
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .timeline {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    padding-left: 2.5rem;
+    padding-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--card-bg);
+  }
+
+  .timeline-date {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+  }
+
+  .timeline-role {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .timeline-company {
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+
+  /* ─── CONTACT ─── */
+  .contact-box {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .contact-box p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+  }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .contact-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .contact-link svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    text-align: center;
+    padding: 2.5rem 3rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    nav.scrolled { padding: 0.7rem 1.5rem; }
+    .nav-links { gap: 1.25rem; }
+    .nav-links a { font-size: 0.75rem; }
+    section { padding: 4rem 1.5rem; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .about-grid { grid-template-columns: 1fr; }
+    .project-card { grid-template-columns: 1fr; }
+    .project-visual { min-height: 180px; }
+    .hero-decoration { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .nav-links { gap: 0.8rem; }
+    .about-stats { grid-template-columns: 1fr; }
+    .hero-cta { flex-direction: column; }
+    .btn { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ─── -->
+<nav id="nav">
+  <a href="#" class="nav-logo">jw<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Data Analytics &amp; Operations</div>
+    <h1>Joanna Woo<br><em>Hui Jun</em></h1>
+    <p class="hero-desc">
+      Shipping operations professional turned data analyst. I build analytical tools that bridge domain expertise with data-driven decision making — from commodity price forecasting to voyage economics.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">
+        View Projects
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+      <a href="https://github.com/huijunjoanna/Past_Projects" target="_blank" rel="noopener" class="btn btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+  <div class="hero-decoration">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <path fill="none" stroke="currentColor" stroke-width="0.5" d="M100,10 L190,100 L100,190 L10,100 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="0.5" d="M100,30 L170,100 L100,170 L30,100 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="0.5" d="M100,50 L150,100 L100,150 L50,100 Z"/>
+      <path fill="none" stroke="currentColor" stroke-width="0.5" d="M100,70 L130,100 L100,130 L70,100 Z"/>
+      <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="0.3"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="0.3"/>
+      <circle cx="100" cy="100" r="50" fill="none" stroke="currentColor" stroke-width="0.3"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ─── ABOUT ─── -->
+<section id="about">
+  <div class="section-header">
+    <div class="section-label">About</div>
+    <h2 class="section-title">Where shipping meets data science</h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>
+        With <strong>1.5 years in dry bulk commercial shipping</strong> at Torvald Klaveness, I managed charter party negotiations, bunker procurement strategy, and voyage P&L analysis across global trade routes.
+      </p>
+      <br>
+      <p>
+        I've since completed a <strong>Data Analytics Bootcamp at General Assembly</strong>, building fluency in Python, SQL, Tableau, and Power BI. My capstone — a biodiesel price forecasting model — reflects my interest in applying machine learning to commodity markets.
+      </p>
+      <br>
+      <p>
+        I hold a <strong>Bachelor of Business Management from SMU</strong> (Operations Analytics major) with a Lean Six Sigma Green Belt, combining quantitative rigour with operational intuition.
+      </p>
+    </div>
+    <div class="about-stats reveal">
+      <div class="stat-card">
+        <div class="stat-number">1.5+</div>
+        <div class="stat-desc">Years in Dry Bulk Shipping Operations</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">SMU</div>
+        <div class="stat-desc">Business Management (Ops Analytics)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">GA</div>
+        <div class="stat-desc">Data Analytics Bootcamp Graduate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">LSSGB</div>
+        <div class="stat-desc">Lean Six Sigma Green Belt</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SKILLS ─── -->
+<section id="skills">
+  <div class="section-header">
+    <div class="section-label">Toolkit</div>
+    <h2 class="section-title">Languages, tools &amp; frameworks</h2>
+  </div>
+  <div class="skills-container reveal">
+    <span class="skill-pill highlight">Python</span>
+    <span class="skill-pill highlight">SQL</span>
+    <span class="skill-pill highlight">Tableau</span>
+    <span class="skill-pill">Power BI</span>
+    <span class="skill-pill">Pandas</span>
+    <span class="skill-pill">NumPy</span>
+    <span class="skill-pill">Scikit-Learn</span>
+    <span class="skill-pill">Matplotlib</span>
+    <span class="skill-pill">Seaborn</span>
+    <span class="skill-pill">XGBoost</span>
+    <span class="skill-pill">ARIMA</span>
+    <span class="skill-pill">Random Forest</span>
+    <span class="skill-pill">Excel / VBA</span>
+    <span class="skill-pill">Git / GitHub</span>
+    <span class="skill-pill">Jupyter Notebooks</span>
+    <span class="skill-pill">Data Cleaning</span>
+    <span class="skill-pill">EDA</span>
+    <span class="skill-pill">Feature Engineering</span>
+    <span class="skill-pill">Predictive Modelling</span>
+    <span class="skill-pill">Voyage P&L Analysis</span>
+    <span class="skill-pill">Charter Party Ops</span>
+    <span class="skill-pill">Bunker Strategy</span>
+  </div>
+</section>
+
+<!-- ─── PROJECTS ─── -->
+<section id="projects">
+  <div class="section-header">
+    <div class="section-label">Projects</div>
+    <h2 class="section-title">Selected work</h2>
+  </div>
+  <div class="projects-grid">
+
+    <!-- Project 1: Biodiesel -->
+    <div class="project-card reveal">
+      <div class="project-visual">
+        <div class="project-visual-pattern"></div>
+        <svg class="project-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="20" width="64" height="48" rx="4" stroke="white" stroke-width="2"/>
+          <polyline points="16,56 30,38 42,48 54,28 72,36" fill="none" stroke="#e8a590" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="30" cy="38" r="3" fill="#e8a590"/>
+          <circle cx="42" cy="48" r="3" fill="#e8a590"/>
+          <circle cx="54" cy="28" r="3" fill="#e8a590"/>
+          <line x1="8" y1="14" x2="72" y2="14" stroke="white" stroke-width="2" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="project-body">
+        <div class="project-tag">Capstone · Machine Learning</div>
+        <h3 class="project-title">Biodiesel Price Analysis &amp; Prediction</h3>
+        <p class="project-desc">
+          End-to-end commodity price forecasting model using historical price data, supply-demand indicators, and macroeconomic variables. Compared ARIMA, Random Forest, and XGBoost to identify the best-performing approach for biodiesel price prediction.
+        </p>
+        <div class="project-tech">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Pandas</span>
+          <span class="tech-tag">Scikit-Learn</span>
+          <span class="tech-tag">XGBoost</span>
+          <span class="tech-tag">Matplotlib</span>
+        </div>
+        <a href="biodiesel.html" class="project-link">
+          View Project Details
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Project 2: US Election -->
+    <div class="project-card reveal">
+      <div class="project-visual">
+        <div class="project-visual-pattern"></div>
+        <svg class="project-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="14" y="50" width="10" height="18" rx="2" fill="white" opacity="0.9"/>
+          <rect x="28" y="36" width="10" height="32" rx="2" fill="white" opacity="0.7"/>
+          <rect x="42" y="42" width="10" height="26" rx="2" fill="white" opacity="0.9"/>
+          <rect x="56" y="24" width="10" height="44" rx="2" fill="white" opacity="0.7"/>
+          <line x1="10" y1="68" x2="70" y2="68" stroke="white" stroke-width="1.5" opacity="0.4"/>
+          <circle cx="40" cy="16" r="6" stroke="white" stroke-width="1.5"/>
+          <path d="M37 16h6M40 13v6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="project-body">
+        <div class="project-tag">Data Analytics · Visualisation</div>
+        <h3 class="project-title">US Presidential Election Voting Trends</h3>
+        <p class="project-desc">
+          Exploratory data analysis of historical US presidential election data, uncovering voter turnout patterns, demographic shifts, and state-level trends through statistical analysis and interactive visualisations.
+        </p>
+        <div class="project-tech">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">Pandas</span>
+          <span class="tech-tag">Tableau</span>
+          <span class="tech-tag">SQL</span>
+          <span class="tech-tag">EDA</span>
+        </div>
+        <a href="https://github.com/huijunjoanna/Past_Projects/tree/main/US%20presidential%20election%20voting%20trends%20-%20GA_Project" target="_blank" rel="noopener" class="project-link">
+          View on GitHub
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── EXPERIENCE ─── -->
+<section id="experience">
+  <div class="section-header">
+    <div class="section-label">Experience</div>
+    <h2 class="section-title">Where I've worked</h2>
+  </div>
+  <div class="timeline">
+    <div class="timeline-item reveal">
+      <div class="timeline-date">Nov 2025 — Mar 2026</div>
+      <div class="timeline-role">Data Analytics Bootcamp</div>
+      <div class="timeline-company">General Assembly</div>
+      <div class="timeline-desc">Intensive program covering Python, SQL, Tableau, and Power BI. Capstone project on biodiesel price forecasting using machine learning models.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-date">2022 — 2024</div>
+      <div class="timeline-role">Vessel Operations Executive</div>
+      <div class="timeline-company">Torvald Klaveness</div>
+      <div class="timeline-desc">Managed dry bulk commercial operations including charter party negotiations, bunker procurement strategy, and voyage P&L analysis across global trade routes.</div>
+    </div>
+    <div class="timeline-item reveal">
+      <div class="timeline-date">2021</div>
+      <div class="timeline-role">Bachelor of Business Management</div>
+      <div class="timeline-company">Singapore Management University</div>
+      <div class="timeline-desc">Operations Analytics major. Achieved Lean Six Sigma Green Belt certification alongside academic coursework in process optimisation and quantitative methods.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ─── -->
+<section id="contact">
+  <div class="section-header">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title">Let's connect</h2>
+  </div>
+  <div class="contact-box reveal">
+    <p>
+      I'm currently exploring opportunities in commodity analytics, data analytics, and maritime commercial operations. Open to conversations about roles where data meets domain expertise.
+    </p>
+    <div class="contact-links">
+      <a href="https://github.com/huijunjoanna" target="_blank" rel="noopener" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/joannawoo" target="_blank" rel="noopener" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a href="mailto:joannawoo@email.com" class="contact-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+        Email
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <p>Designed &amp; built by Joanna Woo <span>·</span> 2026</p>
+</footer>
+
+<script>
+  // ─── NAV SCROLL EFFECT ───
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // ─── SCROLL REVEAL ───
+  const revealElements = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, i * 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  revealElements.forEach(el => observer.observe(el));
+
+  // ─── SMOOTH SCROLL FOR NAV LINKS ───
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
