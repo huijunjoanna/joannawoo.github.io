@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Presidential Elections Analysis — Joanna Woo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f7f5f0;
+    --accent: #c45d3e;
+    --accent-light: #e8a590;
+    --muted: #8a8680;
+    --card-bg: #ffffff;
+    --border: #e2ddd5;
+    --tag-bg: #f0ebe3;
+    --shadow: 0 2px 20px rgba(26, 26, 46, 0.06);
+    --shadow-hover: 0 8px 40px rgba(26, 26, 46, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 1.25rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(247, 245, 240, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  nav.scrolled {
+    padding: 0.8rem 3rem;
+    box-shadow: var(--shadow);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo span { color: var(--accent); }
+
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: color 0.3s, gap 0.3s;
+  }
+
+  .nav-back:hover {
+    color: var(--accent);
+    gap: 0.7rem;
+  }
+
+  .nav-back svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s;
+  }
+
+  .nav-back:hover svg { transform: translateX(-3px); }
+
+  /* ─── HERO ─── */
+  .project-hero {
+    padding: 9rem 3rem 4rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .project-eyebrow {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .project-eyebrow::before {
+    content: '';
+    width: 2rem;
+    height: 1.5px;
+    background: var(--accent);
+  }
+
+  .project-hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    max-width: 850px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .project-hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .project-hero .lead {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 720px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .meta-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .meta-value {
+    font-size: 0.95rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .meta-value.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .meta-value .tech-tag {
+    padding: 0.25rem 0.6rem;
+    background: var(--tag-bg);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  section.content-section {
+    padding: 5rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-intro {
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.85;
+    max-width: 720px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ─── KEY FINDINGS ─── */
+  .findings-section {
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 5rem 3rem;
+  }
+
+  .findings-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .finding-card {
+    padding: 1.75rem;
+    background: var(--paper);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .finding-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .finding-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .finding-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+
+  .finding-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ─── STORY CAROUSEL ─── */
+  .carousel-wrapper {
+    position: relative;
+    margin: 0 -3rem;
+    padding: 0 3rem;
+  }
+
+  .carousel-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-light) var(--tag-bg);
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1.5rem;
+  }
+
+  .carousel-container::-webkit-scrollbar { height: 8px; }
+  .carousel-container::-webkit-scrollbar-track { background: var(--tag-bg); border-radius: 4px; }
+  .carousel-container::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 4px; }
+  .carousel-container::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  .carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .carousel-slide {
+    flex: 0 0 auto;
+    width: min(720px, 85vw);
+    scroll-snap-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .carousel-slide:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .carousel-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Slide image fills naturally */
+
+  .slide-number {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(26, 26, 46, 0.85);
+    color: var(--paper);
+    padding: 0.3rem 0.7rem;
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    z-index: 2;
+  }
+
+  /* ─── CAPTION BOX ─── */
+  .slide-caption {
+    margin-top: 1.5rem;
+    padding: 1.5rem 1.75rem;
+    background: var(--card-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    min-height: 120px;
+    transition: opacity 0.3s ease;
+  }
+
+  .slide-caption .caption-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .slide-caption .caption-label::after {
+    content: attr(data-slide);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .slide-caption .caption-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+  }
+
+  .slide-caption .caption-text {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .carousel-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .carousel-nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .carousel-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+
+  .carousel-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .carousel-btn svg { width: 18px; height: 18px; }
+
+  .carousel-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ─── LIGHTBOX ─── */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    cursor: zoom-out;
+  }
+
+  .lightbox.active { display: flex; }
+
+  .lightbox img {
+    max-width: 95%;
+    max-height: 95vh;
+    border-radius: 8px;
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  .lightbox-close:hover { background: rgba(255, 255, 255, 0.2); }
+
+  /* ─── CODE SECTION ─── */
+  .code-card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
+    border-radius: 14px;
+    padding: 3rem;
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+    margin-top: 2rem;
+  }
+
+  .code-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+
+  .code-card-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    position: relative;
+  }
+
+  .code-card-content h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .code-card-content p {
+    color: rgba(247, 245, 240, 0.7);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    margin-bottom: 1.25rem;
+    max-width: 480px;
+  }
+
+  .code-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .code-file-tag {
+    padding: 0.3rem 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent-light);
+  }
+
+  .code-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.75rem;
+    background: var(--accent);
+    color: var(--paper);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+
+  .code-link:hover {
+    background: var(--accent-light);
+    color: var(--ink);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(196, 93, 62, 0.4);
+  }
+
+  .code-link svg { width: 18px; height: 18px; }
+
+  /* ─── FOOTER NAV ─── */
+  .project-footer {
+    padding: 4rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .project-footer p {
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  footer {
+    text-align: center;
+    padding: 2.5rem 3rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  footer span { color: var(--accent); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    nav.scrolled { padding: 0.7rem 1.5rem; }
+    .project-hero { padding: 7.5rem 1.5rem 3rem; }
+    section.content-section { padding: 3.5rem 1.5rem; }
+    .findings-section { padding: 3.5rem 1.5rem; }
+    .project-meta { gap: 1.5rem; }
+    .code-card { padding: 2rem 1.5rem; }
+    .code-card-inner { grid-template-columns: 1fr; }
+    .carousel-wrapper { margin: 0 -1.5rem; padding: 0 1.5rem; }
+    .project-footer { padding: 3rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">jw<span>.</span></a>
+  <a href="index.html#projects" class="nav-back">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 8H3M7 4L3 8l4 4"/></svg>
+    Back to Projects
+  </a>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="project-hero">
+  <div class="project-eyebrow">Data Analytics · Visualisation</div>
+  <h1>US Presidential <em>Elections</em> 2000–2024</h1>
+  <p class="lead">
+    A Tableau-driven exploration of 24 years of US presidential election data, uncovering voting patterns across 7 elections, identifying high-risk "swing" states most likely to flip, and forecasting which party is most likely to win the next election based on historical sentiment trends.
+  </p>
+  <div class="project-meta">
+    <div class="meta-item">
+      <span class="meta-label">Project Type</span>
+      <span class="meta-value">Data Analytics · Story</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Data Range</span>
+      <span class="meta-value">2000 – 2024 (7 elections)</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Audience</span>
+      <span class="meta-value">Policy Analysts · Campaigners</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Stack</span>
+      <span class="meta-value tags">
+        <span class="tech-tag">Tableau</span>
+        <span class="tech-tag">SQL</span>
+        <span class="tech-tag">Excel</span>
+        <span class="tech-tag">EDA</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── OVERVIEW ─── -->
+<section class="content-section reveal">
+  <div class="section-label">Overview</div>
+  <h2 class="section-title">The question</h2>
+  <p class="section-intro">
+    Across seven presidential elections from 2000 to 2024, both major parties have won an equal number of times — but the path to victory has shifted dramatically. In 2016, Hillary Clinton won the popular vote but lost the electoral college. This analysis maps where party strongholds remain stable, which states swing most often, and what sentiment trends in those high-risk states suggest for the next election.
+  </p>
+</section>
+
+<!-- ─── KEY FINDINGS ─── -->
+<section class="findings-section">
+  <div class="findings-inner reveal">
+    <div class="section-label">Results</div>
+    <h2 class="section-title">Key findings</h2>
+    <p class="section-intro">
+      The data tells a consistent story: while Republicans dominate the electoral map by area, Democrats hold structurally safer electoral college positions. The next election hinges on three swing states.
+    </p>
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-number">3</div>
+        <div class="finding-title">Swing states identified</div>
+        <div class="finding-desc">Florida, Iowa, and Nevada emerged as the most unpredictable states with the highest chance of flipping between parties.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-number">41</div>
+        <div class="finding-title">Electoral votes in play</div>
+        <div class="finding-desc">The three unpredictable states control 41 electoral college votes — about 7.6% of the total — enough to decide a close race.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-number">52.94%</div>
+        <div class="finding-title">Obama's record share</div>
+        <div class="finding-desc">Barack Obama achieved the largest single-election vote share across 24 years, driven by historic timing and data-led campaigning.</div>
+      </div>
+      <div class="finding-card">
+        <div class="finding-number">72%</div>
+        <div class="finding-title">Democrats' electoral edge</div>
+        <div class="finding-desc">Despite declining popular vote share, Democrats hold 72% of low-risk electoral college votes — a structural advantage in close elections.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STORY CAROUSEL ─── -->
+<section class="content-section reveal">
+  <div class="section-label">Tableau Story</div>
+  <h2 class="section-title">The full analysis</h2>
+  <p class="section-intro">
+    Six interactive Tableau dashboards walking through the data — from popularity rankings to swing-state analysis to a final prediction for the next election. Click any slide to view it full-size; commentary for each appears below as you swipe.
+  </p>
+
+  <div class="carousel-wrapper">
+    <div class="carousel-container" id="storyCarousel">
+      <div class="carousel-track" id="storyTrack">
+
+        <!-- Slide 1 — Overview (White House) -->
+        <div class="carousel-slide" data-slide-index="1">
+          <span class="slide-number">1 / 6</span>
+          <img src="assets/election/story/story-01.jpg" alt="Overview of US Presidential Elections" loading="lazy">
+        </div>
+
+        <!-- Slide 2 — Presidential Popularity -->
+        <div class="carousel-slide" data-slide-index="2">
+          <span class="slide-number">2 / 6</span>
+          <img src="assets/election/story/story-02.jpg" alt="Presidential Popularity Sentiments" loading="lazy">
+        </div>
+
+        <!-- Slide 3 — US Map -->
+        <div class="carousel-slide" data-slide-index="3">
+          <span class="slide-number">3 / 6</span>
+          <img src="assets/election/story/story-03.jpg" alt="US Map showing state winners" loading="lazy">
+        </div>
+
+        <!-- Slide 4 — Political Stronghold -->
+        <div class="carousel-slide" data-slide-index="4">
+          <span class="slide-number">4 / 6</span>
+          <img src="assets/election/story/story-04.jpg" alt="Political Stronghold by State" loading="lazy">
+        </div>
+
+        <!-- Slide 5 — Unpredictable States -->
+        <div class="carousel-slide" data-slide-index="5">
+          <span class="slide-number">5 / 6</span>
+          <img src="assets/election/story/story-05.jpg" alt="Unpredictable States Analysis" loading="lazy">
+        </div>
+
+        <!-- Slide 6 — Conclusion -->
+        <div class="carousel-slide" data-slide-index="6">
+          <span class="slide-number">6 / 6</span>
+          <img src="assets/election/story/story-06.jpg" alt="Election Prediction Conclusion" loading="lazy">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Caption Box -->
+  <div class="slide-caption" id="slideCaption">
+    <div class="caption-label" data-slide="01 / 06">Slide Commentary</div>
+    <div class="caption-title" id="captionTitle">Overview of US Presidential Elections</div>
+    <div class="caption-text" id="captionText">
+      Red versus Blue — has public sentiment shifted over time? This story unpacks 24 years of US presidential elections to identify the structural drivers of party support and forecast the next likely winner.
+    </div>
+  </div>
+
+  <div class="carousel-controls">
+    <span class="carousel-counter" id="slideCounter">Slide 1 of 6</span>
+    <div class="carousel-nav">
+      <button class="carousel-btn" id="prevSlide" aria-label="Previous slide">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4L6 9l5 5"/></svg>
+      </button>
+      <button class="carousel-btn" id="nextSlide" aria-label="Next slide">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 4l5 5-5 5"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SOURCE FILES ─── -->
+<section class="content-section reveal">
+  <div class="section-label">Source Files</div>
+  <h2 class="section-title">Tableau workbook &amp; data</h2>
+  <p class="section-intro">
+    The complete Tableau workbook with all dashboards, calculated fields, and the cleaned electoral college dataset — hosted on GitHub.
+  </p>
+
+  <div class="code-card">
+    <div class="code-card-inner">
+      <div class="code-card-content">
+        <h3>View on GitHub</h3>
+        <p>Browse the Tableau workbook, source CSV data, and project files for full reproducibility.</p>
+        <div class="code-files">
+          <span class="code-file-tag">.twbx</span>
+          <span class="code-file-tag">Tableau</span>
+          <span class="code-file-tag">CSV</span>
+          <span class="code-file-tag">EDA</span>
+        </div>
+      </div>
+      <a href="https://github.com/huijunjoanna/Past_Projects/tree/main/US%20presidential%20election%20voting%20trends%20-%20GA_Project" target="_blank" rel="noopener" class="code-link">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+        Open Repository
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="project-footer reveal">
+  <p>Want to see more projects?</p>
+  <a href="index.html#projects" class="btn-outline">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 8H3M7 4L3 8l4 4"/></svg>
+    Back to Portfolio
+  </a>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>
+  </button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<footer>
+  <p>Designed &amp; built by Joanna Woo <span>·</span> 2026</p>
+</footer>
+
+<script>
+  // ─── SLIDE DATA (captions) ───
+  const slideCaptions = [
+    {
+      title: "Overview of US Presidential Elections",
+      text: "Red versus Blue — has public sentiment shifted over time? This story unpacks 24 years of US presidential elections to identify the structural drivers of party support and forecast the next likely winner."
+    },
+    {
+      title: "Presidential's Popularity Sentiments",
+      text: "Over the 7 presidential elections, there are equal winnings between the Democrat and Republican. Most winners managed to stay for 2 terms. But who have been the most popular? Also notice that in 2016 Hillary Clinton won mass public vote than Donald Trump but lost the elections due to lesser electoral college votes."
+    },
+    {
+      title: "Geographical Reach by Party",
+      text: "Across 7 elections, some states flipped (High Risk) and some did not (Low Risk). States that maintain relatively stable allegiance: Alaska, Hawaii, and the upper and lower parts of the US."
+    },
+    {
+      title: "Political Stronghold by State",
+      text: "States are categorised into 3 main groups based on the predictability of the party winning. States where the party has won less than 4 times are considered (High Risk), states that won 5 times (Medium Risk), and 6–7 wins (Low Risk). The 3 states with the highest chance of flipping are then highlighted."
+    },
+    {
+      title: "Unpredictable States Analysis",
+      text: "Take a closer look at the trends of mass sentiments in the 3 high risk states — most are favouring the Republicans in recent elections. Generally across these 3 states, Democrats are facing greater pressure in changing the mass sentiments of the high-risk counties."
+    },
+    {
+      title: "So, who is likely to win the next elections?",
+      text: "In conclusion: based on current trends and mass sentiments, it is highly likely that Republicans will win in the next elections — unless the Democrats are able to garner the support of the unpredictable states. However, Democrats still hold a structural electoral college advantage."
+    }
+  ];
+
+  // ─── CAROUSEL ───
+  const SLIDE_COUNT = 6;
+  const carousel = document.getElementById('storyCarousel');
+  const counter = document.getElementById('slideCounter');
+  const prevBtn = document.getElementById('prevSlide');
+  const nextBtn = document.getElementById('nextSlide');
+  const captionTitle = document.getElementById('captionTitle');
+  const captionText = document.getElementById('captionText');
+  const captionLabel = document.querySelector('.caption-label');
+
+  // ─── LIGHTBOX (for image slides only) ───
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxClose = document.getElementById('lightboxClose');
+
+  function openLightbox(src) {
+    lightboxImg.src = src;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Attach lightbox to slides that have an image
+  document.querySelectorAll('.carousel-slide').forEach(slide => {
+    slide.addEventListener('click', () => {
+      const img = slide.querySelector('img');
+      if (img) openLightbox(img.src);
+    });
+  });
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
+  });
+  lightboxClose.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  // ─── NAVIGATION ───
+  function getSlideWidth() {
+    const slide = carousel.querySelector('.carousel-slide');
+    if (!slide) return 0;
+    const track = document.getElementById('storyTrack');
+    const gap = parseFloat(getComputedStyle(track).gap) || 0;
+    return slide.offsetWidth + gap;
+  }
+
+  function getCurrentIndex() {
+    const slideWidth = getSlideWidth();
+    if (!slideWidth) return 0;
+    return Math.round(carousel.scrollLeft / slideWidth);
+  }
+
+  function updateCaption() {
+    const idx = Math.min(getCurrentIndex(), SLIDE_COUNT - 1);
+    const data = slideCaptions[idx];
+    captionTitle.textContent = data.title;
+    captionText.textContent = data.text;
+    captionLabel.setAttribute('data-slide', `${String(idx + 1).padStart(2, '0')} / ${String(SLIDE_COUNT).padStart(2, '0')}`);
+    counter.textContent = `Slide ${idx + 1} of ${SLIDE_COUNT}`;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    carousel.scrollBy({ left: -getSlideWidth(), behavior: 'smooth' });
+  });
+
+  nextBtn.addEventListener('click', () => {
+    carousel.scrollBy({ left: getSlideWidth(), behavior: 'smooth' });
+  });
+
+  carousel.addEventListener('scroll', () => {
+    requestAnimationFrame(updateCaption);
+  });
+
+  // ─── NAV SCROLL EFFECT ───
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // ─── SCROLL REVEAL ───
+  const revealElements = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  revealElements.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
